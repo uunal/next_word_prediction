@@ -31,12 +31,10 @@ jQuery(document).ready(function () {
                 }
             }).done(function (jsondata, textStatus, jqXHR) {
                 console.log(jsondata)
-                $('#text_bert').val(jsondata['bert'])
-                $('#text_xlnet').val(jsondata['xlnet'])
-                $('#text_xlm').val(jsondata['xlm'])
-                $('#text_bart').val(jsondata['bart'])
-                $('#text_electra').val(jsondata['electra'])
-                $('#text_roberta').val(jsondata['roberta'])
+                $('#text_logbert_base').val(jsondata['logbert'])
+                $('#text_logbert_medium').val(jsondata['logbert-medium'])
+                $('#text_logbert_small').val(jsondata['logbert-small'])
+                $('#text_logbert_mini').val(jsondata['logbert-mini'])               
             }).fail(function (jsondata, textStatus, jqXHR) {
                 console.log(jsondata)
             });
@@ -61,12 +59,10 @@ jQuery(document).ready(function () {
             }
         }).done(function (jsondata, textStatus, jqXHR) {
             console.log(jsondata)
-            $('#mask_text_bert').val(jsondata['bert'])
-            $('#mask_text_xlnet').val(jsondata['xlnet'])
-            $('#mask_text_xlm').val(jsondata['xlm'])
-            $('#mask_text_bart').val(jsondata['bart'])
-            $('#mask_text_electra').val(jsondata['electra'])
-            $('#mask_text_roberta').val(jsondata['roberta'])
+            $('#mask_text_logbert_base').val(jsondata['logbert'])
+            $('#mask_text_logbert_medium').val(jsondata['logbert-medium'])
+            $('#mask_text_logbert_small').val(jsondata['logbert-small'])
+            $('#mask_text_logbert_mini').val(jsondata['logbert-mini'])   
         }).fail(function (jsondata, textStatus, jqXHR) {
             console.log(jsondata)
         });

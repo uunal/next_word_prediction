@@ -5,10 +5,10 @@ import string
 # thanks to @renatoviolin 
 # simply changing mdoels and create testing environment for tested models.
 
-BASE_MODEL = "models/LogBERT-base-v0"
-MEDIUM_MODEL = "models/LogBERT-medium-v0"
-SMALL_MODEL = "models/LogBERT-small-v0"
-MINI_MODEL = "models/LogBERT-mini-v0"
+BASE_MODEL = "models/testing/LogBERT-base-v0"
+MEDIUM_MODEL = "models/testing/LogBERT-medium-v0"
+SMALL_MODEL = "models/testing/LogBERT-small-v0"
+MINI_MODEL = "models/testing/LogBERT-mini-v0"
 
 
 from transformers import BertTokenizer, BertForMaskedLM
@@ -21,8 +21,8 @@ bert_med_model = BertForMaskedLM.from_pretrained(MEDIUM_MODEL).eval()
 bert_sma_tokenizer = BertTokenizer.from_pretrained(SMALL_MODEL)
 bert_sma_model = BertForMaskedLM.from_pretrained(SMALL_MODEL).eval()
 
-bert_med_tokenizer = BertTokenizer.from_pretrained(MINI_MODEL)
-bert_med_model = BertForMaskedLM.from_pretrained(MINI_MODEL).eval()
+bert_min_tokenizer = BertTokenizer.from_pretrained(MINI_MODEL)
+bert_min_model = BertForMaskedLM.from_pretrained(MINI_MODEL).eval()
 
 #TODO
 #Maybe, Roberta models should be added to compare BPE and WordPiece
