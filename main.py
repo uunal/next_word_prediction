@@ -2,11 +2,32 @@
 import torch
 import string
 
-from transformers import BertTokenizer, BertForMaskedLM
-bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-bert_model = BertForMaskedLM.from_pretrained('bert-base-uncased').eval()
+# thanks to @renatoviolin 
+# simply changing mdoels and create testing environment for tested models.
 
-from transformers import XLNetTokenizer, XLNetLMHeadModel
+BASE_MODEL = "models/LogBERT-base-v0"
+MEDIUM_MODEL = "models/LogBERT-medium-v0"
+SMALL_MODEL = "models/LogBERT-small-v0"
+MINI_MODEL = "models/LogBERT-mini-v0"
+
+
+from transformers import BertTokenizer, BertForMaskedLM
+bert_tokenizer = BertTokenizer.from_pretrained(BASE_MODEL)
+bert_model = BertForMaskedLM.from_pretrained(BASE_MODEL).eval()
+
+bert_med_tokenizer = BertTokenizer.from_pretrained(MEDIUM_MODEL)
+bert_med_model = BertForMaskedLM.from_pretrained(MEDIUM_MODEL).eval()
+
+bert_sma_tokenizer = BertTokenizer.from_pretrained(SMALL_MODEL)
+bert_sma_model = BertForMaskedLM.from_pretrained(SMALL_MODEL).eval()
+
+bert_med_tokenizer = BertTokenizer.from_pretrained(MINI_MODEL)
+bert_med_model = BertForMaskedLM.from_pretrained(MINI_MODEL).eval()
+
+#TODO
+#Maybe, Roberta models should be added to compare BPE and WordPiece
+
+'''from transformers import XLNetTokenizer, XLNetLMHeadModel
 xlnet_tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
 xlnet_model = XLNetLMHeadModel.from_pretrained('xlnet-base-cased').eval()
 
@@ -24,7 +45,7 @@ electra_model = ElectraForMaskedLM.from_pretrained('google/electra-small-generat
 
 from transformers import RobertaTokenizer, RobertaForMaskedLM
 roberta_tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-roberta_model = RobertaForMaskedLM.from_pretrained('roberta-base').eval()
+roberta_model = RobertaForMaskedLM.from_pretrained('roberta-base').eval()'''
 
 top_k = 10
 
@@ -51,14 +72,35 @@ def encode(tokenizer, text_sentence, add_special_tokens=True):
 
 
 def get_all_predictions(text_sentence, top_clean=5):
-    # ========================= BERT =================================
+    # ========================= LogBERT-base =================================
     print(text_sentence)
     input_ids, mask_idx = encode(bert_tokenizer, text_sentence)
     with torch.no_grad():
         predict = bert_model(input_ids)[0]
-    bert = decode(bert_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+    logbert = decode(bert_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
 
-    # ========================= XLNET LARGE =================================
+    # ========================= LogBERT-medium =================================
+    print(text_sentence)
+    input_ids, mask_idx = encode(bert_med_tokenizer, text_sentence)
+    with torch.no_grad():
+        predict = bert_med_model(input_ids)[0]
+    logbert_m = decode(bert_med_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
+    # ========================= LogBERT-small =================================
+    print(text_sentence)
+    input_ids, mask_idx = encode(bert_sma_tokenizer, text_sentence)
+    with torch.no_grad():
+        predict = bert_sma_model(input_ids)[0]
+    logbert_s = decode(bert_sma_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
+    # ========================= LogBERT-mini =================================
+    print(text_sentence)
+    input_ids, mask_idx = encode(bert_min_tokenizer, text_sentence)
+    with torch.no_grad():
+        predict = bert_min_model(input_ids)[0]
+    logbert_mi = decode(bert_min_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
+    '''# ========================= XLNET LARGE =================================
     input_ids, mask_idx = encode(xlnet_tokenizer, text_sentence, False)
     perm_mask = torch.zeros((1, input_ids.shape[1], input_ids.shape[1]), dtype=torch.float)
     perm_mask[:, :, mask_idx] = 1.0  # Previous tokens don't see last token
@@ -98,4 +140,9 @@ def get_all_predictions(text_sentence, top_clean=5):
             'xlm': xlm,
             'bart': bart,
             'electra': electra,
-            'roberta': roberta}
+            'roberta': roberta}'''
+    
+    return {'logbert': logbert,
+        'logbert-medium': logbert_m,
+        'logbert-small': logbert_s,
+        'logbert-mini': logbert_mi}
