@@ -5,6 +5,7 @@ import string
 # thanks to @renatoviolin 
 # simply changing mdoels and create testing environment for tested models.
 
+BASE_MODEL_2X = "models/testing/LogBERT-base-v1"
 BASE_MODEL = "models/testing/LogBERT-base-v0"
 MEDIUM_MODEL = "models/testing/LogBERT-medium-v0"
 SMALL_MODEL = "models/testing/LogBERT-small-v0"
@@ -12,6 +13,9 @@ MINI_MODEL = "models/testing/LogBERT-mini-v0"
 
 
 from transformers import BertTokenizer, BertForMaskedLM
+bert_tokenizer_2x = BertTokenizer.from_pretrained(BASE_MODEL_2X)
+bert_model_2x = BertForMaskedLM.from_pretrained(BASE_MODEL_2X).eval()
+
 bert_tokenizer = BertTokenizer.from_pretrained(BASE_MODEL)
 bert_model = BertForMaskedLM.from_pretrained(BASE_MODEL).eval()
 
@@ -72,6 +76,14 @@ def encode(tokenizer, text_sentence, add_special_tokens=True):
 
 
 def get_all_predictions(text_sentence, top_clean=5):
+    
+    # ========================= LogBERT-base-2x =================================
+    print(text_sentence)
+    input_ids, mask_idx = encode(bert_tokenizer_2x, text_sentence)
+    with torch.no_grad():
+        predict = bert_model_2x(input_ids)[0]
+    logbert_2x = decode(bert_tokenizer_2x, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
     # ========================= LogBERT-base =================================
     print(text_sentence)
     input_ids, mask_idx = encode(bert_tokenizer, text_sentence)
@@ -142,7 +154,8 @@ def get_all_predictions(text_sentence, top_clean=5):
             'electra': electra,
             'roberta': roberta}'''
     
-    return {'logbert': logbert,
+    return {'logbert-2x': logbert_2x,
+        'logbert': logbert,
         'logbert-medium': logbert_m,
         'logbert-small': logbert_s,
         'logbert-mini': logbert_mi}

@@ -31,6 +31,7 @@ jQuery(document).ready(function () {
                 }
             }).done(function (jsondata, textStatus, jqXHR) {
                 console.log(jsondata)
+                $('#text_logbert_base_2x').val(jsondata['logbert-2x'])
                 $('#text_logbert_base').val(jsondata['logbert'])
                 $('#text_logbert_medium').val(jsondata['logbert-medium'])
                 $('#text_logbert_small').val(jsondata['logbert-small'])
@@ -59,6 +60,7 @@ jQuery(document).ready(function () {
             }
         }).done(function (jsondata, textStatus, jqXHR) {
             console.log(jsondata)
+            $('#mask_text_logbert_base_2x').val(jsondata['logbert-2x'])
             $('#mask_text_logbert_base').val(jsondata['logbert'])
             $('#mask_text_logbert_medium').val(jsondata['logbert-medium'])
             $('#mask_text_logbert_small').val(jsondata['logbert-small'])
