@@ -31,12 +31,13 @@ jQuery(document).ready(function () {
                 }
             }).done(function (jsondata, textStatus, jqXHR) {
                 console.log(jsondata)
+                $('#text_logbert_base_2x2').val(jsondata['logbert-2x2'])
                 $('#text_logbert_base_2x1').val(jsondata['logbert-2x1'])
                 $('#text_logbert_base_2x').val(jsondata['logbert-2x'])
                 $('#text_logbert_base').val(jsondata['logbert'])
-                $('#text_logbert_medium').val(jsondata['logbert-medium'])
+                $('#text_logbert_medium_2x').val(jsondata['logbert-medium-2x'])                
                 $('#text_logbert_small').val(jsondata['logbert-small'])
-                $('#text_logbert_mini').val(jsondata['logbert-mini'])               
+                              
             }).fail(function (jsondata, textStatus, jqXHR) {
                 console.log(jsondata)
             });
@@ -61,12 +62,13 @@ jQuery(document).ready(function () {
             }
         }).done(function (jsondata, textStatus, jqXHR) {
             console.log(jsondata)
+            $('#mask_text_logbert_base_2x2').val(jsondata['logbert-2x2'])
             $('#mask_text_logbert_base_2x1').val(jsondata['logbert-2x1'])
             $('#mask_text_logbert_base_2x').val(jsondata['logbert-2x'])
             $('#mask_text_logbert_base').val(jsondata['logbert'])
-            $('#mask_text_logbert_medium').val(jsondata['logbert-medium'])
+            $('#mask_text_logbert_medium_2x').val(jsondata['logbert-medium-2x'])            
             $('#mask_text_logbert_small').val(jsondata['logbert-small'])
-            $('#mask_text_logbert_mini').val(jsondata['logbert-mini'])   
+             
         }).fail(function (jsondata, textStatus, jqXHR) {
             console.log(jsondata)
         });
