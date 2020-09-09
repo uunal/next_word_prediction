@@ -5,41 +5,51 @@ import string
 # thanks to @renatoviolin 
 # simply changing mdoels and create a playground for tested models.
 
-BASE_MODEL_2X2 = "models/testing/LogBERT-base-v2-1"
-BASE_MODEL_2X1 = "models/testing/LogBERT-base-v2"
-BASE_MODEL_2X = "models/testing/LogBERT-base-v1"
-BASE_MODEL = "models/testing/LogBERT-base-v0"
-MEDIUM_MODEL_2X = "models/testing/LogBERT-medium-v2"
-#MEDIUM_MODEL = "models/testing/LogBERT-medium-v0"
-SMALL_MODEL = "models/testing/LogBERT-small-v0"
-#MINI_MODEL = "models/testing/LogBERT-mini-v0"
+# naming --> MODEL_hidden-layerXattention-headsXhidden-size
+# selected models has different dimensions and diferent epochs in pretraining
+# BUT have same tokenizers trained on same data!
 
+
+MODEL_6x12x768 = "models/testing/LogBERT-6x12x768" 
+MODEL_8x8x512 = "models/testing/LogBERT-8x8x512"
+
+
+
+# TODO preserve naming convention
+BASE_MODEL_2X2 = "models/testing/LogBERT-base-2epoch" #
+BASE_MODEL_2X1 = "models/testing/LogBERT-base-1epoch" #
+SMALL_MODEL = "models/testing/LogBERT-small-1epoch" #
+
+# TODO change naming convention for tokenizers
+# TODO tokenizers can be defined differently but no --
+# need to preserve them inside model directory.
+
+
+MODELa_6x12x768 = "models/testing/LogBERT-6x12x768-from-checkpoint" 
 
 from transformers import BertTokenizer, BertForMaskedLM
 
-bert_tokenizer_2x2 = BertTokenizer.from_pretrained(BASE_MODEL_2X2)
+bert_tokenizer_6x12x768 = BertTokenizer.from_pretrained(MODEL_6x12x768)
+bert_model_6x12x768 = BertForMaskedLM.from_pretrained(MODEL_6x12x768).eval()
+
+bert_tokenizer_8x8x512 = BertTokenizer.from_pretrained(MODEL_8x8x512)
+bert_model_8x8x512 = BertForMaskedLM.from_pretrained(MODEL_8x8x512).eval()
+
+# bert_model_12x12x768_2epoch
+bert_tokenizer_2x2  =BertTokenizer.from_pretrained(BASE_MODEL_2X2)
 bert_model_2x2 = BertForMaskedLM.from_pretrained(BASE_MODEL_2X2).eval()
 
+# bert_model_12x12x768_1epoch
 bert_tokenizer_2x1 = BertTokenizer.from_pretrained(BASE_MODEL_2X1)
 bert_model_2x1 = BertForMaskedLM.from_pretrained(BASE_MODEL_2X1).eval()
 
-bert_tokenizer_2x = BertTokenizer.from_pretrained(BASE_MODEL_2X)
-bert_model_2x = BertForMaskedLM.from_pretrained(BASE_MODEL_2X).eval()
-
-bert_tokenizer = BertTokenizer.from_pretrained(BASE_MODEL)
-bert_model = BertForMaskedLM.from_pretrained(BASE_MODEL).eval()
-
-bert_med_tokenizer_2x = BertTokenizer.from_pretrained(MEDIUM_MODEL_2X)
-bert_med_model_2x = BertForMaskedLM.from_pretrained(MEDIUM_MODEL_2X).eval()
-
-#bert_med_tokenizer = BertTokenizer.from_pretrained(MEDIUM_MODEL)
-#bert_med_model = BertForMaskedLM.from_pretrained(MEDIUM_MODEL).eval()
-
+# bert_model_4x8x512_1epoch
 bert_sma_tokenizer = BertTokenizer.from_pretrained(SMALL_MODEL)
 bert_sma_model = BertForMaskedLM.from_pretrained(SMALL_MODEL).eval()
 
-#bert_min_tokenizer = BertTokenizer.from_pretrained(MINI_MODEL)
-#bert_min_model = BertForMaskedLM.from_pretrained(MINI_MODEL).eval()
+# bert_model_6x12x768_4epoch different batching
+roberta_tokenizer_6x12x768 = BertTokenizer.from_pretrained(MODELa_6x12x768)
+roberta_model_6x12x768 = BertForMaskedLM.from_pretrained(MODELa_6x12x768).eval()
 
 #TODO
 #Maybe, Roberta models should be added to compare BPE and WordPiece
@@ -90,7 +100,23 @@ def encode(tokenizer, text_sentence, add_special_tokens=True):
 
 def get_all_predictions(text_sentence, top_clean=5):
 
-    # ========================= LogBERT-base-2x2 =================================
+    # ========================= LogBERT-6x12x768 =================================
+    print(text_sentence)
+    input_ids, mask_idx = encode(bert_tokenizer_6x12x768, text_sentence)
+    with torch.no_grad():
+        predict = bert_model_6x12x768(input_ids)[0]
+    
+    logbert_6x12x768 = decode(bert_tokenizer_6x12x768, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
+    # ========================= LogBERT-8x8x512 =================================
+    print(text_sentence)
+    input_ids, mask_idx = encode(bert_tokenizer_8x8x512, text_sentence)
+    with torch.no_grad():
+        predict = bert_model_8x8x512(input_ids)[0]
+    
+    logbert_8x8x512 = decode(bert_tokenizer_8x8x512, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
+    # ========================= LogBERT-base-2x2 (bert_model_12x12x768_2epoch) =================================
     print(text_sentence)
     input_ids, mask_idx = encode(bert_tokenizer_2x2, text_sentence)
     with torch.no_grad():
@@ -98,47 +124,27 @@ def get_all_predictions(text_sentence, top_clean=5):
     logbert_2x2 = decode(bert_tokenizer_2x2, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
 
 
-    # ========================= LogBERT-base-2x1 =================================
+    # ========================= LogBERT-base-2x1 (bert_model_12x12x768_1epoch)=================================
     print(text_sentence)
     input_ids, mask_idx = encode(bert_tokenizer_2x1, text_sentence)
     with torch.no_grad():
         predict = bert_model_2x1(input_ids)[0]
     logbert_2x1 = decode(bert_tokenizer_2x1, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
 
-    # ========================= LogBERT-base-2x =================================
-    print(text_sentence)
-    input_ids, mask_idx = encode(bert_tokenizer_2x, text_sentence)
-    with torch.no_grad():
-        predict = bert_model_2x(input_ids)[0]
-    logbert_2x = decode(bert_tokenizer_2x, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
-
-    # ========================= LogBERT-base =================================
-    print(text_sentence)
-    input_ids, mask_idx = encode(bert_tokenizer, text_sentence)
-    with torch.no_grad():
-        predict = bert_model(input_ids)[0]
-    logbert = decode(bert_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
-
-    # ========================= LogBERT-medium =================================
-    #print(text_sentence)
-    #input_ids, mask_idx = encode(bert_med_tokenizer, text_sentence)
-    #with torch.no_grad():
-    #    predict = bert_med_model(input_ids)[0]
-    #logbert_m = decode(bert_med_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
-
-    # ========================= LogBERT-medium-2x =================================
-    print(text_sentence)
-    input_ids, mask_idx = encode(bert_med_tokenizer_2x, text_sentence)
-    with torch.no_grad():
-        predict = bert_med_model_2x(input_ids)[0]
-    logbert_m_2x = decode(bert_med_tokenizer_2x, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
-
-    # ========================= LogBERT-small =================================
+    # ========================= LogBERT-small (bert_model_4x8x512_1epoch)=================================
     print(text_sentence)
     input_ids, mask_idx = encode(bert_sma_tokenizer, text_sentence)
     with torch.no_grad():
         predict = bert_sma_model(input_ids)[0]
     logbert_s = decode(bert_sma_tokenizer, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
+
+
+    # ========================= LogBERTa-6x12x768 =================================
+
+    input_ids, mask_idx = encode(roberta_tokenizer_6x12x768, text_sentence, add_special_tokens=True)
+    with torch.no_grad():
+        predict = roberta_model_6x12x768(input_ids)[0]
+    logberta_6x12x768 = decode(roberta_tokenizer_6x12x768, predict[0, mask_idx, :].topk(top_k).indices.tolist(), top_clean)
 
     # ========================= LogBERT-mini =================================
     #print(text_sentence)
@@ -190,10 +196,10 @@ def get_all_predictions(text_sentence, top_clean=5):
             'roberta': roberta}'''
     
     return {'logbert-2x1': logbert_2x1,
-        'logbert-2x': logbert_2x,
-        'logbert': logbert,
-        'logbert-medium-2x': logbert_m_2x,
+        'logbert-6x12x768': logbert_6x12x768,
+        'logbert-8x8x512': logbert_8x8x512,      
         'logbert-small': logbert_s,
-        'logbert-2x2':logbert_2x2}
+        'logbert-2x2':logbert_2x2,
+        'logberta-6x12x768':logberta_6x12x768}
         #'logbert-medium': logbert_m,
         #'logbert-mini': logbert_mi}
